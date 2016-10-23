@@ -148,6 +148,10 @@
   }
 
   function drawRing(){
+    clearView();
+
+    console.log("draw ring");
+
     var arc = d3.arc()
       .outerRadius(200)
       .innerRadius(185);
@@ -156,11 +160,43 @@
       .sort(null)
       .value(function(d){return d.value;});
 
+    var wait;
+
     rings = svg.selectAll(".rings")
       .data(pie(show_ids))
       .enter()
       .append("g")
-      .attr("class", "rings");
+      .attr("class", "rings")
+      .on('click', function(d,i) {
+        console.log("ring click");
+
+        if(wait){
+          console.log("click twice");
+          clearTimeout(wait);
+          wait = null;
+          if(show_ids.length > 1){
+              show_ids = show_ids.slice(i,i+1);
+              console.log(show_ids);
+            }else{
+              console.log("not slice");
+              show_ids = all_ids;
+          }
+          drawRing();
+        }else{
+          wait = setTimeout(function(){
+          console.log("click once");
+          if(show_ids.length > 1){
+            show_ids.splice(i,1);
+            console.log(show_ids);
+          }else{
+              show_ids = all_ids;
+          }
+          drawRing();
+          wait = null;
+          },500);
+        }
+        
+      });
 
     rings.append("path")
       .attr("d", arc)
@@ -178,6 +214,9 @@
         return getYpoint(192.5,(startAngle[i] + endAngle[i] -Math.PI)/2 );
       })
       .text(function(d,i){
+        if(d.data.name.length > 4){
+          return d.data.name.substring(0,4);
+        }
         return d.data.name;
       });
 
@@ -185,6 +224,7 @@
   }
 
   function drawBubbles(){
+    console.log("draw bubble");
 
     bubbles = svg.selectAll(".bubbles")
       .data(JAN_array)
@@ -280,8 +320,23 @@
   function getYpoint(length, angle){
     return length * Math.sin(angle);
   }
+
+  function dist(a, b) {
+    return Math.sqrt(Math.pow(a[0] - b[0], 2), Math.pow(a[1] - b[1], 2));
+  }
+
+  function clearView(){
+    svg.selectAll(".rings").remove();
+    svg.selectAll(".bubbles").remove();
+    svg.selectAll("path").remove();
+    svg.selectAll("text").remove();
+    svg.selectAll("rect").remove();
+    svg.selectAll("circle").remove();
+
+  }
     
   </script>
+  }
   
 </head>
 </html>
