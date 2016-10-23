@@ -91,6 +91,7 @@
 
   var startAngle = [];
   var endAngle = [];
+  var circleAttr = []; // [[length, angle, color, visible]]
 
   var filter = document.getElementById("flt_ctg"); 
   var svg = d3.select("#panel")
@@ -100,6 +101,7 @@
     .append("g");
 
   var rings;
+  var bubbles;
 
   function call_python(method, param) {
       $.get("python:" + method + "(" + JSON.stringify(param) + ")")
@@ -160,8 +162,6 @@
       .append("g")
       .attr("class", "rings");
 
-    document.getElementById("object_detail").innerHTML = JSON.stringify(pie(show_ids));
-
     rings.append("path")
       .attr("d", arc)
       .attr("fill", function(d,i){
@@ -181,7 +181,96 @@
         return d.data.name;
       });
 
-      drawCircle();
+      drawBubbles();
+  }
+
+  function drawBubbles(){
+
+    bubbles = svg.selectAll(".bubbles")
+      .data(JAN_array)
+      .enter()
+      .append("g")
+      .attr("class", "bubbles");
+
+    bubbles.append("circle")
+      .attr("id", function(d,i){
+        var circleId;
+        switch( filter.options[filter.selectedIndex].value ){
+          case "type":
+            circleId = d.type;
+          break;
+          case "author":
+            circleId = d.author;
+          break;
+        }
+
+        circleAttr[i] = [0,0,"#FFF",0];
+
+        for(var j = 0; j < show_ids.length; j++){
+
+          if(circleId == show_ids[j].name){
+            var c_angle = Math.random() * (endAngle[j] - startAngle[j]) + startAngle[j] - Math.PI/2;
+            var c_length = Math.random() * 150 + 20;
+            var c_color = color(j);
+            circleAttr[i] = [c_length, c_angle, c_color, 1];
+            break;
+          }
+        }
+
+        return d.uuid;
+      })
+      .attr("r", 10)
+      .style("opacity",0.5)
+      .style("visibility", function(d,i){
+        if(circleAttr[i][3] == 0){
+          return "hidden";
+        }else{
+          return "visible";
+        }
+      })
+      .style("fill", function(d,i){
+        return circleAttr[i][2];
+      })
+      .attr("cx", 0)
+      .attr("cy", 0)
+      .transition()
+      .duration(1000)
+      .attr("cx", function(d,i){
+        return getXpoint(circleAttr[i][0], circleAttr[i][1]);
+      })
+      .attr("cy", function(d,i){
+        return getYpoint(circleAttr[i][0], circleAttr[i][1]);
+      });
+
+    bubbles.append("text")
+      .style("visibility", function(d,i){
+        if(circleAttr[i][3] == 0){
+          return "hidden";
+        }else{
+          return "visible";
+        }
+      })
+      .style("fill", function(d,i){
+        return circleAttr[i][2];
+      })
+      .attr("font-size", 14)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .attr("alignment-baseline", "middle")
+      .text(function(d,i){
+        return d.uuid;
+      })
+      .attr("x", 0)
+      .attr("y", 0)
+      .transition()
+      .duration(1000)
+      .attr("x", function(d,i){
+        return getXpoint(circleAttr[i][0], circleAttr[i][1]);
+      })
+      .attr("y", function(d,i){
+        return getYpoint(circleAttr[i][0], circleAttr[i][1]);
+      });
+
   }
 
   function getXpoint(length, angle){
