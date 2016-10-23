@@ -35,15 +35,15 @@ class  ReloadView:
         
     def getJansFromKeyword(self, keyword):
         print("getJansFromKeyword")
-        self.js_function("getJansFromKeyword",F.json_from_file("/home/chunwei/KaM-Lab-Visualization/hardcode/" + keyword + ".json"))
+        self.js_function("getJansFromKeyword",F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/" + keyword + ".json"))
         
     def getCategory(self,keyword):
         print("getCategory")
-        self.js_function("getCategory", (F.json_from_file("/home/chunwei/KaM-Lab-Visualization/hardcode/category")).split(","))
+        self.js_function("getCategory", (F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/category")).split(","))
 
     def getIdsFromCategory(self,category):
         print("getIdsFromCategory")
-        self.js_function("getIdsFromCategory", F.json_from_file("/home/chunwei/KaM-Lab-Visualization/hardcode/" + category+".json"))
+        self.js_function("getIdsFromCategory", F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/" + category+".json"))
         
 
 

@@ -11,18 +11,16 @@
     table{
         border-style: solid;
         border-width: 2px;
-        text-align: center;
         border-collapse: collapse;
         margin-left:auto; 
         margin-right:auto;
-        width:450px;
+        width:500px;
         height: 100vh;
     }
 
     td{
         border-style: solid;
         border-width: 2px;
-        text-align: center;
         vertical-align: top;
         border-collapse: collapse;
         margin-left:auto; 
@@ -55,35 +53,7 @@
     }
    
   </style>
-  <script>
-  var JAN_array = [];
-  var all_ids = [];
-  var show_ids = [];
-
-	function call_python(method, param) {
-      $.get("python:" + method + "(" + JSON.stringify(param) + ")")
-  }
-
-  function sendTarget() {
-    var keyword = document.getElementById("target").value; 
-    call_python("getJansFromKeyword", keyword);
-  }
-
-  function getJansFromKeyword(jan){
-    JAN_array = JSON.parse(jan);
-    call_python("getCategory", "");
-  }
-
-  function getCategory(ids){
-    all_ids = JSON.parse(ids);
-    show_ids = all_ids;
-  }
-
-
-
-		
-  </script>
-</head>
+  
 <body>
   <table>
     <tr>
@@ -111,5 +81,118 @@
     </tr>
   </table>
 </body>
+  <script>
+
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+  var JAN_array = []; //all the Jans
+  var all_ids = []; // restore all the ids of the category
+  var show_ids = [];// the ids we want to shows
+
+  var startAngle = [];
+  var endAngle = [];
+
+  var filter = document.getElementById("flt_ctg"); 
+  var svg = d3.select("#panel")
+    .attr("width", 500)
+    .attr("height", 500)
+    .attr("viewBox", "-250 -250 500 500")
+    .append("g");
+
+  var rings;
+
+  function call_python(method, param) {
+      $.get("python:" + method + "(" + JSON.stringify(param) + ")")
+  }
+
+  function sendTarget() {
+    var keyword = document.getElementById("target").value; 
+    call_python("getJansFromKeyword", keyword);
+  }
+
+  function getJansFromKeyword(jan){
+    JAN_array = JSON.parse(jan);
+    call_python("getCategory", "");
+
+
+  }
+
+  function getCategory(category){
+
+    while(filter.firstChild){
+      filter.removeChild(filter.firstChild);
+    }
+    for(var i = 0 ; i < category.length; i++){
+      var opt = document.createElement("option");
+      opt.setAttribute("value", category[i]);
+      var opt_show = document.createTextNode(category[i]);
+      opt.appendChild(opt_show);
+      filter.appendChild(opt);
+    }
+    
+    call_python("getIdsFromCategory", filter.options[0].value);
+
+    filter.onchange = function(){
+      call_python("getIdsFromCategory", filter.options[filter.selectedIndex].value);
+    }
+
+  }
+
+  function getIdsFromCategory(ids){
+    all_ids = JSON.parse(ids);
+    show_ids = JSON.parse(ids);
+
+    drawRing();
+  }
+
+  function drawRing(){
+    var arc = d3.arc()
+      .outerRadius(200)
+      .innerRadius(185);
+
+    var pie = d3.pie()
+      .sort(null)
+      .value(function(d){return d.value;});
+
+    rings = svg.selectAll(".rings")
+      .data(pie(show_ids))
+      .enter()
+      .append("g")
+      .attr("class", "rings");
+
+    document.getElementById("object_detail").innerHTML = JSON.stringify(pie(show_ids));
+
+    rings.append("path")
+      .attr("d", arc)
+      .attr("fill", function(d,i){
+        startAngle[i] = d.startAngle;
+        endAngle[i] = d.endAngle;
+        return color(i);
+      });
+
+    rings.append("text")
+      .attr("x", function(d,i){
+        return getXpoint(192.5,(startAngle[i] + endAngle[i] -Math.PI)/2 );
+      })
+      .attr("y", function(d,i){
+        return getYpoint(192.5,(startAngle[i] + endAngle[i] -Math.PI)/2 );
+      })
+      .text(function(d,i){
+        return d.data.name;
+      });
+
+      drawCircle();
+  }
+
+  function getXpoint(length, angle){
+    return length * Math.cos(angle);
+  }
+
+  function getYpoint(length, angle){
+    return length * Math.sin(angle);
+  }
+    
+  </script>
   
+</head>
 </html>
