@@ -1,0 +1,115 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PKaM</title>
+  <!-- APP js -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <!-- add d3 from web -->
+  <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <style>
+
+    table{
+        border-style: solid;
+        border-width: 2px;
+        text-align: center;
+        border-collapse: collapse;
+        margin-left:auto; 
+        margin-right:auto;
+        width:450px;
+        height: 100vh;
+    }
+
+    td{
+        border-style: solid;
+        border-width: 2px;
+        text-align: center;
+        vertical-align: top;
+        border-collapse: collapse;
+        margin-left:auto; 
+        margin-right:auto;
+    }
+
+    h1{
+        color:black;
+        font-size:32px;
+        text-align:center;
+    }
+    h2{
+        font-size:20px;
+        text-align:center;
+    }
+    body {
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        font-size: 12px;
+    }
+
+    #desktop circle.mainBubble {
+          fill: #aaa;
+          stroke: #666;
+          stroke-width: 1px;
+    }
+
+    text {
+        fill: black;
+        text-anchor: middle;
+    }
+   
+  </style>
+  <script>
+  var JAN_array = [];
+  var all_ids = [];
+  var show_ids = [];
+
+	function call_python(method, param) {
+      $.get("python:" + method + "(" + JSON.stringify(param) + ")")
+  }
+
+  function sendTarget() {
+    var keyword = document.getElementById("target").value; 
+    call_python("getJansFromKeyword", keyword);
+  }
+
+  function getJansFromKeyword(jan){
+    JAN_array = JSON.parse(jan);
+    call_python("getCategory", "");
+  }
+
+  function getCategory(ids){
+    all_ids = JSON.parse(ids);
+    show_ids = all_ids;
+  }
+
+
+
+		
+  </script>
+</head>
+<body>
+  <table>
+    <tr>
+      <td style="height:40px">
+        <input style="margin-top:5px" type="text" id="target">
+        <button style="margin-top:5px" type="button" onClick="sendTarget()">Submit!</button>
+      </td>
+    </tr>
+    <tr>
+      <td style="height:450px">
+        <div style="text-align:left">
+           filter: 
+           <select id="flt_ctg"></select>
+        </div>
+        <div>
+          <svg id="panel">
+          </svg>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div align="center" id="object_detail"></div>
+      </td>
+    </tr>
+  </table>
+</body>
+  
+</html>
