@@ -9,6 +9,9 @@ from gi.repository import WebKit2
 from file_utils import F
 
 class  ReloadView:
+    jsonList = [];
+
+
     def __init__(self):
         window = Gtk.Window()
         window.connect('delete-event',Gtk.main_quit)
@@ -35,8 +38,11 @@ class  ReloadView:
         
     def getJansFromKeyword(self, keyword):
         print("getJansFromKeyword")
-        self.js_function("getJansFromKeyword",F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/" + keyword + ".json"))
-        
+        json_context = F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/" + keyword + ".json")
+        self.js_function("getJansFromKeyword",json_context)
+        #self.jsonList = json.dumps(json_context)
+        #print(len(self.jsonList))
+
     def getCategory(self,keyword):
         print("getCategory")
         self.js_function("getCategory", (F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/category")).split(","))

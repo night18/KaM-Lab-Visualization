@@ -86,6 +86,7 @@
   var color = d3.scaleOrdinal(d3.schemeCategory20);
 
   var JAN_array = []; //all the Jans
+  var keyword_array = [];//save the keywords of each jan, example: "fun":"uuid3,uuid4"
   var all_ids = []; // restore all the ids of the category
   var show_ids = [];// the ids we want to shows
 
@@ -102,6 +103,10 @@
 
   var rings;
   var bubbles;
+  var keywordsLine = svg.selectAll(".Kline")
+    .append("g")
+    .attr("class", "Kline")
+    ;
 
   function call_python(method, param) {
       $.get("python:" + method + "(" + JSON.stringify(param) + ")")
@@ -113,6 +118,7 @@
   }
 
   function getJansFromKeyword(jan){
+
     JAN_array = JSON.parse(jan);
     call_python("getCategory", "");
 
@@ -230,7 +236,24 @@
       .data(JAN_array)
       .enter()
       .append("g")
-      .attr("class", "bubbles");
+      .attr("class", "bubbles")
+      .on("click", function(d,i){
+        document.getElementById("object_detail").innerHTML = JSON.stringify(keyword_array);
+        for(var j = 0; j < d.keywords.length; j++){
+          for(var k = 0; k < keyword_array.length; k++){
+            if(d.keywords[j] = keyword_array[k].name){
+              for(var l = 0; l < keyword_array[k].uuid.length; l++){
+                if(d.uuid != keyword_array[k].uuid[l]){
+                  // keywordsLine.append("line")
+
+                }
+              }
+              break;
+            }
+
+          }
+        }
+      });
 
     bubbles.append("circle")
       .attr("id", function(d,i){
@@ -244,54 +267,118 @@
           break;
         }
 
-        circleAttr[i] = [0,0,"#FFF",0];
+        // circleAttr[i] = [0,0,"#FFF",0];
+        var isShown = false;
 
         for(var j = 0; j < show_ids.length; j++){
-
           if(circleId == show_ids[j].name){
+            isShown = true;
             var c_angle = Math.random() * (endAngle[j] - startAngle[j]) + startAngle[j] - Math.PI/2;
             var c_length = Math.random() * 150 + 20;
             var c_color = color(j);
-            circleAttr[i] = [c_length, c_angle, c_color, 1];
+            // circleAttr[i] = [c_length, c_angle, c_color, 1];
+            circleAttr.push({"uuid": d.uuid, "c_length": c_length, "c_angle": c_angle ,"c_color": c_color, "visible": 1});
             break;
           }
         }
+        if(!isShown){
+          circleAttr.push({"uuid": d.uuid, "c_length": 0, "c_angle": c_angle,"c_color": "#FFF", "visible": 0});
+        }
+
+        for(var j = 0; j < d.keywords.length; j++ ){
+          var isInArray = false;
+          for(var k = 0; k < keyword_array.length; k++){
+            if(d.keywords[j] == keyword_array[k].name){
+              isInArray = true;
+              keyword_array[k].uuid.push(d.uuid);
+              break;
+            }
+          }
+          if(!isInArray){
+            keyword_array.push({"name":d.keywords[j], "uuid":[d.uuid]});
+          }
+        }
+        
 
         return d.uuid;
       })
       .attr("r", 10)
       .style("opacity",0.5)
       .style("visibility", function(d,i){
-        if(circleAttr[i][3] == 0){
-          return "hidden";
-        }else{
-          return "visible";
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            if(circleAttr[j].visible == 0){
+              return "hidden";
+            }else{
+              return "visible";
+            }
+            break;
+          }
         }
+        // if(circleAttr[i][3] == 0){
+        //   return "hidden";
+        // }else{
+        //   return "visible";
+        // }
       })
       .style("fill", function(d,i){
-        return circleAttr[i][2];
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            return circleAttr[i].c_color;
+            break;
+          }
+        }
+        // return circleAttr[i][2];
       })
       .attr("cx", 0)
       .attr("cy", 0)
       .transition()
       .duration(1000)
       .attr("cx", function(d,i){
-        return getXpoint(circleAttr[i][0], circleAttr[i][1]);
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            return getXpoint(circleAttr[i].c_length, circleAttr[i].c_angle);
+            break;
+          }
+        }
+        // return getXpoint(circleAttr[i][0], circleAttr[i][1]);
       })
       .attr("cy", function(d,i){
-        return getYpoint(circleAttr[i][0], circleAttr[i][1]);
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            return getYpoint(circleAttr[i].c_length, circleAttr[i].c_angle);
+            break;
+          }
+        }
+        // return getYpoint(circleAttr[i][0], circleAttr[i][1]);
       });
 
     bubbles.append("text")
       .style("visibility", function(d,i){
-        if(circleAttr[i][3] == 0){
-          return "hidden";
-        }else{
-          return "visible";
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            if(circleAttr[j].visible == 0){
+              return "hidden";
+            }else{
+              return "visible";
+            }
+            break;
+          }
         }
+        // if(circleAttr[i][3] == 0){
+        //   return "hidden";
+        // }else{
+        //   return "visible";
+        // }
       })
       .style("fill", function(d,i){
-        return circleAttr[i][2];
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            return circleAttr[i].c_color;
+            break;
+          }
+        }
+        // return circleAttr[i][2];
       })
       .attr("font-size", 14)
       .attr("text-anchor", "middle")
@@ -305,10 +392,22 @@
       .transition()
       .duration(1000)
       .attr("x", function(d,i){
-        return getXpoint(circleAttr[i][0], circleAttr[i][1]);
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            return getXpoint(circleAttr[i].c_length, circleAttr[i].c_angle);
+            break;
+          }
+        }
+        // return getXpoint(circleAttr[i][0], circleAttr[i][1]);
       })
       .attr("y", function(d,i){
-        return getYpoint(circleAttr[i][0], circleAttr[i][1]);
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            return getYpoint(circleAttr[i].c_length, circleAttr[i].c_angle);
+            break;
+          }
+        }
+        // return getYpoint(circleAttr[i][0], circleAttr[i][1]);
       });
 
   }
@@ -332,11 +431,12 @@
     svg.selectAll("text").remove();
     svg.selectAll("rect").remove();
     svg.selectAll("circle").remove();
+    keyword_array = [];
+    circleAttr = [];
 
   }
     
   </script>
-  }
   
 </head>
 </html>
