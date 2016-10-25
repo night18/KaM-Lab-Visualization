@@ -167,11 +167,7 @@
 
     var wait;
 
-    lines = svg.selectAll(".lines")
-      .data([0])
-      .enter()
-      .append("g")
-      .attr("class", "lines");
+    lines = svg.selectAll(".lines");
 
     rings = svg.selectAll(".rings")
       .data(pie(show_ids))
@@ -264,6 +260,7 @@
         }
 
         svg.selectAll("line").remove();
+        svg.selectAll(".lines").remove();
 
         console.log(linePoint+","+isShownLine )
         if(d.uuid == linePoint && isShownLine){
@@ -290,16 +287,22 @@
 
                   console.log("x2:" +x2 + "y2" +y2);
 
-                  lines.append("line")
+                  var keyword_line = lines.data([0])
+                    .enter()
+                    .append("g")
+                    .attr("class", "lines");
+
+
+                  keyword_line.append("line")
                     .attr("x1",x1)
                     .attr("y1",y1)
                     .attr("x2",x2)
                     .attr("y2",y2)
-                    .attr("stroke-width",1.5)
+                    .attr("stroke-width",2)
                     .style("opacity",0.5)
                     .attr("stroke",linecolor(j));
 
-                  lines.append("title")
+                  keyword_line.append("title")
                     .text(function(){return "keyword:" + d.keywords[j]});
 
                   isShownLine = true;
@@ -496,6 +499,7 @@
     svg.selectAll("text").remove();
     svg.selectAll("rect").remove();
     svg.selectAll("circle").remove();
+    svg.selectAll("title").remove();
     svg.selectAll("line").remove();
     keyword_array = [];
     circleAttr = [];
