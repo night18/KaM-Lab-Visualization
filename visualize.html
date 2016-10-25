@@ -230,6 +230,11 @@
         }
         return d.data.name;
       });
+    rings.append("title")
+      .text(function(d){
+        return d.data.name;
+      })
+
 
       drawBubbles();
   }
@@ -293,6 +298,9 @@
                     .attr("stroke-width",1.5)
                     .style("opacity",0.5)
                     .attr("stroke",linecolor(j));
+
+                  lines.append("title")
+                    .text(function(){return "keyword:" + d.keywords[j]});
 
                   isShownLine = true;
                   linePoint = d.uuid;
@@ -448,6 +456,24 @@
         }
       });
 
+      bubbles.append("title")
+      .text(function(d){
+        return d.uuid
+      })
+      .style("visibility", function(d,i){
+        for(var j= 0 ; j < circleAttr.length; j++){
+          if(d.uuid == circleAttr[j].uuid){
+            if(circleAttr[j].visible == 0){
+              return "hidden";
+            }else{
+              return "visible";
+            }
+            break;
+          }
+        }
+
+      });
+
   }
 
   function getXpoint(length, angle){
@@ -465,10 +491,12 @@
   function clearView(){
     svg.selectAll(".rings").remove();
     svg.selectAll(".bubbles").remove();
+    svg.selectAll(".lines").remove();
     svg.selectAll("path").remove();
     svg.selectAll("text").remove();
     svg.selectAll("rect").remove();
     svg.selectAll("circle").remove();
+    svg.selectAll("line").remove();
     keyword_array = [];
     circleAttr = [];
 
