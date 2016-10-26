@@ -15,7 +15,7 @@
         margin-left:auto; 
         margin-right:auto;
         width:500px;
-        height: 100vh;
+        height: 600px;
     }
 
     td{
@@ -63,7 +63,7 @@
       </td>
     </tr>
     <tr>
-      <td style="height:450px">
+      <td style="height:550px">
         <div style="text-align:left">
            filter: 
            <select id="flt_ctg"></select>
@@ -72,11 +72,6 @@
           <svg id="panel">
           </svg>
         </div>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <div align="center" id="object_detail"></div>
       </td>
     </tr>
   </table>
@@ -338,8 +333,11 @@
         for(var j = 0; j < show_ids.length; j++){
           if(circleId == show_ids[j].name){
             isShown = true;
-            var c_angle = Math.random() * (endAngle[j] - startAngle[j]) + startAngle[j] - Math.PI/2;
-            var c_length = Math.random() * 150 + 20;
+            var position = givePosition(startAngle[j], endAngle[j]);
+            // var c_angle = Math.random() * (endAngle[j] - startAngle[j]) + startAngle[j] - Math.PI/2;
+            // var c_length = Math.random() * 155 + 15;
+            var c_angle = position[1];
+            var c_length = position[0];
             var c_color = color(j);
             circleAttr.push({"uuid": d.uuid, "c_length": c_length, "c_angle": c_angle ,"c_color": c_color, "visible": 1});
             break;
@@ -492,6 +490,22 @@
   function dist(l1, l2, a1, a2) {
     return Math.sqrt(Math.pow(l1, 2) + Math.pow(l2, 2) - 2 * l1 * l2 * Math.cos(a2 - a1));
   }
+
+  function givePosition(sa, ea){
+    var c_angle = Math.random() * (ea - sa) + sa - Math.PI/2;
+    var c_length = Math.random() * 155 + 15;
+
+    for(var l = 0; l < circleAttr.length; l++){
+      if(dist(c_length, circleAttr[l].c_length, c_angle, circleAttr[l].c_angle) < 20){
+
+        var tmp_position = givePosition(sa,ea);
+        c_angle = tmp_position[1];
+        c_length = tmp_position[0];
+      }
+    }
+
+    return [c_length, c_angle];
+}
 
   function clearView(){
     svg.selectAll(".rings").remove();

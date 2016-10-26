@@ -24,7 +24,7 @@ class  ReloadView:
         
 
         window.add(self.view)
-        window.resize(500,850)
+        window.resize(550,650)
         window.show_all()
         
     def visualizer_request(self, request, *args):
