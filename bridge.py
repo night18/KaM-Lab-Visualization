@@ -1,5 +1,6 @@
 import gi
 import json
+from itertools import groupby 
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('WebKit2', '4.0')
@@ -10,6 +11,9 @@ from file_utils import F
 
 class  ReloadView:
     jsonList = [];
+    authorList = [];
+    timeList = [];
+    typeList = [];
 
 
     def __init__(self):
@@ -24,7 +28,7 @@ class  ReloadView:
         
 
         window.add(self.view)
-        window.resize(550,650)
+        window.resize(550,600)
         window.show_all()
         
     def visualizer_request(self, request, *args):
@@ -37,19 +41,37 @@ class  ReloadView:
         self.view.run_javascript(function +"(" + json.dumps(param) + ")", None, None)
         
     def getJansFromKeyword(self, keyword):
+        json_author = [];
+        json_time = [];
+        json_type = [];
         print("getJansFromKeyword")
         json_context = F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/" + keyword + ".json")
+        self.jsonList = json.loads(json_context)
         self.js_function("getJansFromKeyword",json_context)
-        #self.jsonList = json.dumps(json_context)
-        #print(len(self.jsonList))
 
-    def getCategory(self,keyword):
-        print("getCategory")
-        self.js_function("getCategory", (F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/category")).split(","))
+        #for i in range(0,len(self.jsonList)):
+        for d in self.jsonList:
+            print d["uuid"]
+            for key,value in d.iteritems():
+                if key == "author":
+                    json_author.append(value)
+                if key == "time":
+                    json_time.append(value)
+                if key == "type":
+                    json_type.append(value)
+        self.authorList = [dict(name = key, value= len(list(group))) for key,group in groupby(sorted(json_author))]
+        self.timeList = [dict(name = key, value= len(list(group))) for key,group in groupby(sorted(json_time))]
+        self.typeList = [dict(name = key, value= len(list(group))) for key,group in groupby(sorted(json_type))]
 
     def getIdsFromCategory(self,category):
         print("getIdsFromCategory")
-        self.js_function("getIdsFromCategory", F.json_from_file("/home/wei/KaM-Lab-Visualization/hardcode/" + category+".json"))
+        if category == "author":
+            showList = self.authorList
+        elif category == "time":
+            showList = self.timeList
+        elif category == "type":
+            showList = self.typeList
+        self.js_function("getIdsFromCategory", json.dumps(showList))
         
 
 

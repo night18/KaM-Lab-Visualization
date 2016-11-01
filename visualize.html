@@ -14,8 +14,6 @@
         border-collapse: collapse;
         margin-left:auto; 
         margin-right:auto;
-        width:500px;
-        height: 600px;
     }
 
     td{
@@ -27,24 +25,9 @@
         margin-right:auto;
     }
 
-    h1{
-        color:black;
-        font-size:32px;
-        text-align:center;
-    }
-    h2{
-        font-size:20px;
-        text-align:center;
-    }
     body {
         font-family: "Helvetica Neue", Helvetica, sans-serif;
         font-size: 12px;
-    }
-
-    #desktop circle.mainBubble {
-          fill: #aaa;
-          stroke: #666;
-          stroke-width: 1px;
     }
 
     text {
@@ -54,7 +37,7 @@
    
   </style>
   
-<body>
+<body onresize="changeWindowSize()">
   <table>
     <tr>
       <td style="height:40px">
@@ -63,7 +46,7 @@
       </td>
     </tr>
     <tr>
-      <td style="height:550px">
+      <td >
         <div style="text-align:left">
            filter: 
            <select id="flt_ctg"></select>
@@ -77,6 +60,7 @@
   </table>
 </body>
   <script>
+  var windowsLength = Math.min(document.body.clientWidth,document.body.clientHeight)-80
 
   var color = d3.scaleOrdinal(d3.schemeCategory20);
   var linecolor = d3.scaleOrdinal(d3.schemeCategory10);
@@ -92,15 +76,24 @@
 
   var filter = document.getElementById("flt_ctg"); 
   var svg = d3.select("#panel")
-    .attr("width", 500)
-    .attr("height", 500)
+    .attr("width", windowsLength)
+    .attr("height", windowsLength)
     .attr("viewBox", "-250 -250 500 500")
-    .append("g");
+    ;
 
   var rings;
   var lines;
   var bubbles;
 
+
+  function changeWindowSize(){
+    windowsLength = Math.min(document.body.clientWidth,document.body.clientHeight)-80
+    svg = d3.select("#panel")
+    .attr("width", windowsLength)
+    .attr("height", windowsLength)
+    .attr("viewBox", "-250 -250 500 500")
+
+  }
 
   function call_python(method, param) {
       $.get("python:" + method + "(" + JSON.stringify(param) + ")")
@@ -114,7 +107,7 @@
   function getJansFromKeyword(jan){
 
     JAN_array = JSON.parse(jan);
-    call_python("getCategory", "");
+    getCategory(["time","author","type"]);
 
 
   }
@@ -178,7 +171,7 @@
           wait = null;
           if(show_ids.length > 1){
               show_ids = show_ids.slice(i,i+1);
-              console.log(show_ids);
+              console.log(show_ids.length);
             }else{
               console.log("not slice");
               show_ids = all_ids;
@@ -278,7 +271,6 @@
                   }
 
                   if(x2 != 0 && y2 != 0){
-                  console.log("x2:" +x2 + "y2" +y2);
 
                   var keyword_line = lines.data([0])
                     .enter()
